@@ -6,7 +6,7 @@ module.exports = function (req, res, next) {
   if (!token) return res.status(401).json({ message: "Access Denied" });
 
   try {
-    const verify = jwt.verify(token, JWT_SECRET);
+    const verify = jwt.verify(token.split(" ")[1], JWT_SECRET);
     req.user = verify;
     next();
   } catch (error) {
