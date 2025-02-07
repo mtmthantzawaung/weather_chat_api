@@ -1,10 +1,10 @@
 const bcrypt = require("bcryptjs");
-const User = require("../models/User");
+const User = require("../models/user");
 const { USER_ROLES } = require("../utils/constants/role");
 const {
   generateAccessToken,
   generateRefreshToken,
-} = require("./utils/tokenUtils");
+} = require("../utils/tokenUtils");
 
 // Register
 exports.register = async (req, res) => {
@@ -59,9 +59,8 @@ exports.refreshToken = async (req, res) => {
   try {
     const user = req.user;
     const accessToken = generateAccessToken(user);
-    const newRefreshToken = generateRefreshToken(user);
 
-    res.json({ accessToken, refreshToken: newRefreshToken });
+    res.json({ accessToken });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
