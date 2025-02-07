@@ -11,6 +11,17 @@ exports.register = async (req, res) => {
   try {
     const { username, email, password, age } = req.body;
 
+    // Validate input
+    if (!username || !email || !password || !age) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Check if email is already registered
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email is already in use." });
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -24,9 +35,24 @@ exports.register = async (req, res) => {
     });
     await newUser.save();
 
-    res.status(201).json({ message: "User registered successfully!" });
+    // Generate tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.status(201).json({
+      message: "User registered successfully!",
+      accessToken,
+      refreshToken,
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        role: newUser.role,
+        age: newUser.age,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -37,20 +63,25 @@ exports.login = async (req, res) => {
 
     // find user by email
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user)
+      return res
+        .status(400)
+        .json({ message: "Email or password is incorrect" });
 
     // check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res
+        .status(400)
+        .json({ message: "Email or password is incorrect" });
 
     // Generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.json({ accessToken, refreshToken });
+    res.json({ accessToken, refreshToken, user });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -59,10 +90,9 @@ exports.refreshToken = async (req, res) => {
   try {
     const user = req.user;
     const accessToken = generateAccessToken(user);
-    const newRefreshToken = generateRefreshToken(user);
 
-    res.json({ accessToken, refreshToken: newRefreshToken });
+    res.status(200).json({ accessToken });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
