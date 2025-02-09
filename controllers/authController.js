@@ -5,6 +5,7 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../utils/tokenUtils");
+const { successResponse, errorResponse } = require("../utils/responseUtils");
 
 // Register
 exports.register = async (req, res) => {
@@ -13,13 +14,16 @@ exports.register = async (req, res) => {
 
     // Validate input
     if (!username || !email || !password || !age) {
-      return res.status(400).json({ message: "All fields are required." });
+      return errorResponse(res, 400, "All fields are required.");
     }
 
     // Check if email is already registered
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email is already in use." });
+      return errorResponse(res, 400, "Email is already in use.", {
+        field: "email",
+        error: "This email is already associated with another account.",
+      });
     }
 
     // Hash password
@@ -36,11 +40,10 @@ exports.register = async (req, res) => {
     await newUser.save();
 
     // Generate tokens
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    const accessToken = generateAccessToken(newUser);
+    const refreshToken = generateRefreshToken(newUser);
 
-    res.status(201).json({
-      message: "User registered successfully!",
+    return successResponse(res, 201, "User registered successfully!", {
       accessToken,
       refreshToken,
       user: {
@@ -52,7 +55,7 @@ exports.register = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return errorResponse(res, 500, "Server error", { error: error.message });
   }
 };
 
@@ -64,24 +67,24 @@ exports.login = async (req, res) => {
     // find user by email
     const user = await User.findOne({ email });
     if (!user)
-      return res
-        .status(400)
-        .json({ message: "Email or password is incorrect" });
+      return errorResponse(res, 400, "Email or password is incorrect.");
 
     // check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return res
-        .status(400)
-        .json({ message: "Email or password is incorrect" });
+      return errorResponse(res, 400, "Email or password is incorrect.");
 
     // Generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.json({ accessToken, refreshToken, user });
+    return successResponse(res, 200, "User login successfully!", {
+      accessToken,
+      refreshToken,
+      user,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return errorResponse(res, 500, "Server error", { error: error.message });
   }
 };
 
@@ -91,8 +94,10 @@ exports.refreshToken = async (req, res) => {
     const user = req.user;
     const accessToken = generateAccessToken(user);
 
-    res.status(200).json({ accessToken });
+    return successResponse(res, 200, "Refresh successfully!", {
+      accessToken,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return errorResponse(res, 500, "Server error", { error: error.message });
   }
 };
