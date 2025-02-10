@@ -18,6 +18,7 @@ app.get("/", (req, res) => {
 // API Router
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/weather", require("./routes/weatherRoute"));
 
 // Start server
 const PORT = process.env.PORT || 3000;
