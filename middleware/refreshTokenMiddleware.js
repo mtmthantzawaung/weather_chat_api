@@ -15,7 +15,7 @@ module.exports = function (req, res, next) {
     if (error.name === "TokenExpiredError") {
       return errorResponse(res, 403, "Refresh Token expired");
     } else {
-      return errorResponse(res, 400, "Invalid Refresh Token");
+      return errorResponse(res, 401, "Invalid Refresh Token");
     }
   }
 };

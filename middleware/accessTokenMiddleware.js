@@ -11,6 +11,6 @@ module.exports = function (req, res, next) {
     req.user = verify;
     next();
   } catch (error) {
-    return errorResponse(res, 400, "Invalid Token");
+    return errorResponse(res, 401, "Invalid Token");
   }
 };

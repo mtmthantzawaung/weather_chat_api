@@ -10,3 +10,15 @@ exports.getWeather = async (city) => {
     throw error.response?.data || { message: "Failed to fetch weather data" };
   }
 };
+
+exports.getHourlyWeather = async (lat, long) => {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?current=&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&latitude=${lat}&longitude=${long}`;
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    throw (
+      error.response?.data || { message: "Failed to fetch hourly weather data" }
+    );
+  }
+};

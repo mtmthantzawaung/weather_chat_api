@@ -1,5 +1,5 @@
 const { successResponse, errorResponse } = require("../utils/responseUtils");
-const { getWeather } = require("../services/weatherService");
+const { getWeather, getHourlyWeather } = require("../services/weatherService");
 
 exports.getWeatherByCity = async (req, res) => {
   try {
@@ -11,6 +11,25 @@ exports.getWeatherByCity = async (req, res) => {
       res,
       200,
       "Weather data fetched successfully",
+      weatherData
+    );
+  } catch (error) {
+    return errorResponse(res, error.cod || 500, error.message);
+  }
+};
+
+exports.getHourlyWeatherByCity = async (req, res) => {
+  try {
+    const lat = req.query.lat;
+    const long = req.query.long;
+    if (!lat && !long)
+      return errorResponse(res, 400, "lat & long are required.");
+
+    const weatherData = await getHourlyWeather(lat, long);
+    return successResponse(
+      res,
+      200,
+      "Hourly Weather data fetched successfully",
       weatherData
     );
   } catch (error) {
