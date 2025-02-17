@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const { USER_ROLES } = require("../utils/constants/role");
+const { successResponse, errorResponse } = require("../utils/responseUtils");
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -7,12 +8,19 @@ exports.getAllUsers = async (req, res) => {
 
     const users = await User.find();
 
-    res.status(200).json({
-      message: "Welcome Authenticated User",
-      data: users,
-    });
+    return successResponse(res, 200, "Get user successfully", users);
   } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ error: error.message });
+    return errorResponse(res, error.cod || 500, error.message);
+  }
+};
+
+exports.getUserById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+
+    return successResponse(res, 200, "Get user successfully", user);
+  } catch (error) {
+    return errorResponse(res, error.cod || 500, error.message);
   }
 };

@@ -8,7 +8,7 @@ const successResponse = (res, statusCode, message, data = null) => {
 };
 
 // Error Response
-const errorResponse = (res, statusCode, message, errorDetails = null) => {
+const errorResponse = (res, statusCode, message, errorDetails = {}) => {
   return res.status(statusCode).json({
     success: false,
     message,

@@ -13,6 +13,7 @@ module.exports = (io) => {
     // Send message
     socket.on("sendMessage", async ({ senderId, receiverId, message }) => {
       const receiverSocketId = onlineUsers.get(receiverId);
+      
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("receiveMessage", { senderId, message });
       }
