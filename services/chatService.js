@@ -1,4 +1,4 @@
-const Chat = require("../models/Chat");
+const Chat = require("../models/chat");
 
 exports.saveMessage = async (senderId, receiverId, message) => {
   return await Chat.create({ senderId, receiverId, message });
