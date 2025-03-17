@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const User = require("../models/user");
+const User = require("../models/User");
 const { USER_ROLES } = require("../utils/constants/role");
 const {
   generateAccessToken,
