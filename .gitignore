@@ -1,2 +1,8 @@
-".json"
-".env"
+# Ignore all .json files
+# *.json
+
+# Ignore .env files
+.env
+
+# Ignore firebaseAdminSDK.json file in config directory
+config/firebaseAdminSDK.json
